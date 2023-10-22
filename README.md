@@ -1,8 +1,12 @@
-# Aws Eks mount secrets as Environment Variables
-Here are some examples on how to mount secrets from AWS Secrets manager in to your pod in EKS Cluster. Current documentation does not explain how to mount secrets as variable, also doe not detail how to export individual items
+# Aws Eks: K8s secret from Secrets manager and mount as Environment Variables
 
+There are 3 parts to creating K8s secrets from AWS Secrets Manager objects
 
-> While installing CSI Driver, ***MUST*** ensure to enable sync if you like to create K8sSecret and assign to environment variables
+- Install CSI driver with --set syncSecret.enabled=true
+- Configure necessary objects in SecretProviderClass.parametes
+- Create Secret Objects to create k8s secrets SecretProviderClass.secretObject
+
+> CSI Driver ***MUST*** be installed with ***--set syncSecret.enabled=true***
 
 
 ## Install CSI Driver and AWS Provider with Helm chart
@@ -25,37 +29,44 @@ Follow instructions here [AWS Secrets Manager and Config Provider](https://githu
 - Necessary policy created in AWS to allow access to Secret
 - Iamservice account called 'nginx-deployment-sa' created and policy attached
 
-### Exporting secrets as file
-SecretProviderClass spec:
-```yaml
+## Creating K8s Secrets from AWS Secrets
+
+```bash
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: aws-secret-to-k8s-secret
+  namespace: default
+spec:
+  provider: aws
   parameters:
     objects: |
-        - objectName: "MySecret"  # Name of the secret in AWS secretsmanager
+        - objectName: "MySecrets"
           objectType: "secretsmanager"
-          objectAlias: secret-token      # Optional Alias name. This will be the file name on the pod
-          jmesPath:                      # Use jmesPath to create file with individual secret value
-            - path: "username"           # Name of the secret object in MySecret
-              objectAlias: "Username"    # Name of the file that will contain the value
-            - path: "password"
-              objectAlias: "MyPassword"
-
-```
-
-### K8s Secrets for AWS secret / mounting as environment variable
-SecretProviderClass spec:
-'parameters' section lets you mount secrts as file. In oder to create K8s secrets and to mount as variable, add 'secretsObjects section'
-
-```yaml
+          objectAlias: mysecrets
+          jmesPath:
+            - path: "username"
+              objectAlias: "Username"
   secretObjects:
-    - secretName: username					# Name of the k8s secret to create	
+    - secretName: myusername
       type: Opaque
       data: 
-        - objectName: "Username"          # This is the ObjectName or obJectAlias defined in the parameters section
-          key: "myusername"				  # With in k8s secret data will be in this key
- # Below example creates k8s secret names 'mysecret' and all the values will be stored as 'secretData'
-    - secretName: mysecret
+        - objectName: "Username"
+          key: "username"
+    - secretName: myk8ssecrets
       type: Opaque
       data: 
-        - objectName: "secret-token"
-          key: "secretData"
+        - objectName: "mysecrets"
+          key: "mysecrets"
+
 ```
+#### spec.parameters
+  - objectName: Name of the secret object in secretStore
+  - objectAlias: Optional Alias name for secretObject.
+  - jmesPath.path : Name of specific secret to be exposed
+  - jmesPath.objectAlias: Alias name for the seccret to be used.
+
+#### spec.secretObjects
+  - secretName: Name of the secret to be created in k8s
+  - data.objectName: Name of the secretObject/Alias to retrieve data from
+  - key: Name of the key with in k8s secret to be used for storing retrieved data.

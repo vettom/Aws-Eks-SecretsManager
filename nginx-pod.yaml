@@ -14,21 +14,21 @@ spec:
     volumeMounts:
       # Mount secret to math. Filename will be objectName or objectAlias if defined.
     - name: secrets-store-inline
-      mountPath: "/mnt/secrets-store"
+      mountPath: "/secrets-store"
       readOnly: true
     env:
+      # Mount username as env variable
+      - name: MYUSERNAME
+        valueFrom:
+          secretKeyRef:
+            name: "myusername"
+            key: username
       # Mount entire content of secret in to env variable
       - name: MY_SECRET
         valueFrom:
           secretKeyRef:
-            name: "mysecret"
-            key: secretData
-        # Mount username as env variable
-      - name: MYUSERNAME
-        valueFrom:
-          secretKeyRef:
-            name: "username"
-            key: Username
+            name: "myk8ssecrets"
+            key: "mysecrets"
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Always
@@ -39,5 +39,5 @@ spec:
       driver: secrets-store.csi.k8s.io
       readOnly: true
       volumeAttributes:
-        secretProviderClass: "nginx-deployment-aws-secrets"
+        secretProviderClass: "aws-secret-to-k8s-secret"
 status: {}
