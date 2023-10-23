@@ -12,7 +12,7 @@ spec:
   - image: nginx
     name: nginx
     volumeMounts:
-      # Mount secret to math. Filename will be objectName or objectAlias if defined.
+      # Filename will be objectName or objectAlias if defined.
     - name: secrets-store-inline
       mountPath: "/secrets-store"
       readOnly: true
@@ -27,8 +27,8 @@ spec:
       - name: MY_SECRET
         valueFrom:
           secretKeyRef:
-            name: "myk8ssecrets"
-            key: "mysecrets"
+            name: "myk8ssecret"
+            key: "mysecret"
     resources: {}
   dnsPolicy: ClusterFirst
   restartPolicy: Always

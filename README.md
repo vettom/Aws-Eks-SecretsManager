@@ -41,9 +41,9 @@ spec:
   provider: aws
   parameters:
     objects: |
-        - objectName: "MySecrets"
+        - objectName: "MySecret"
           objectType: "secretsmanager"
-          objectAlias: mysecrets
+          objectAlias: mysecret
           jmesPath:
             - path: "username"
               objectAlias: "Username"
@@ -53,11 +53,11 @@ spec:
       data: 
         - objectName: "Username"
           key: "username"
-    - secretName: myk8ssecrets
+    - secretName: myk8ssecret
       type: Opaque
       data: 
-        - objectName: "mysecrets"
-          key: "mysecrets"
+        - objectName: "mysecret"
+          key: "mysecret"
 
 ```
 #### spec.parameters
@@ -70,3 +70,5 @@ spec:
   - secretName: Name of the secret to be created in k8s
   - data.objectName: Name of the secretObject/Alias to retrieve data from
   - key: Name of the key with in k8s secret to be used for storing retrieved data.
+
+  Above configuration will create k8s secret called 'myusername' with value of username in key 'username'. k8s secret 'mysecrets' will contain all objects in Mysecrets under k8s secret key 'mysecrets'
