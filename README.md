@@ -1,4 +1,4 @@
-<a href="https://vettom.github.io/"><img src="https://vettom.github.io/img/vettom-banner.jpg" alt="vettom.github.io" ></a>
+![vettom.pages.dev banner](https://vettom-images.s3.eu-west-1.amazonaws.com/logo/vettom-banner.jpg)
 # Aws Eks: K8s secret from Secrets manager and mount as Environment Variables
 
 There are 3 parts to creating K8s secrets from AWS Secrets Manager objects
